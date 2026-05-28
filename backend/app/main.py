@@ -9,10 +9,12 @@ from app.db.base import Base
 from app.models.document import Document, DocumentPage
 from app.api.documents import router as documents_router
 from app.models.chunk import DocumentChunk
+from app.api.chat import router as chat_router
 
 app = FastAPI()
 
 app.include_router(documents_router)
+app.include_router(chat_router)
 
 @app.get("/")
 async def root():
