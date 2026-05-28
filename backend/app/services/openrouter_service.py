@@ -19,3 +19,21 @@ def create_chat_response(message: str) -> str:
     )
 
     return response.choices[0].message.content
+
+def stream_chat_response(message: str):
+    stream = client.chat.completions.create(
+        model=settings.OPENROUTER_MODEL,
+        messages=[
+            {
+                "role": "user",
+                "content": message,
+            }
+        ],
+        stream=True,
+    )
+
+    for chunk in stream:
+        delta = chunk.choices[0].delta.content
+
+        if delta:
+            yield delta

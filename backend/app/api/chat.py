@@ -7,6 +7,9 @@ from app.services.rag_chat_service import (
     ask_document_question,
 )
 
+from fastapi.responses import StreamingResponse
+from app.services.rag_stream_service import stream_document_answer
+
 router = APIRouter(
     prefix="/chat",
     tags=["chat"],
@@ -24,3 +27,17 @@ async def chat(
     )
 
     return result
+
+@router.post("/stream")
+async def chat_stream(
+    request: ChatRequest,
+    db: Session = Depends(get_db),
+):
+    return StreamingResponse(
+        stream_document_answer(
+            document_id=request.document_id,
+            question=request.message,
+            db=db,
+        ),
+        media_type="application/x-ndjson",
+    )
