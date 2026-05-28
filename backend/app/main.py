@@ -8,6 +8,7 @@ from app.services.ollama_embedding_service import create_embedding
 from app.db.base import Base
 from app.models.document import Document, DocumentPage
 from app.api.documents import router as documents_router
+from app.models.chunk import DocumentChunk
 
 app = FastAPI()
 
