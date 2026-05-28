@@ -1,35 +1,40 @@
 def build_rag_prompt(
     question: str,
-    chunks,
+    chunks: list[dict],
 ):
     context_sections = []
 
     for chunk in chunks:
         context_sections.append(
             f"""
-[Page {chunk.page_number}]
-{chunk.content}
+[Source: page {chunk["page_number"]}, chunk {chunk["chunk_index"]}]
+{chunk["content"]}
 """
         )
 
     context = "\n".join(context_sections)
 
     prompt = f"""
-You are a helpful AI assistant.
+You are a PDF question-answering assistant.
 
-Answer ONLY using the provided context.
+Your task:
+Answer the user's question using ONLY the context below.
 
-If the answer is not found in the context,
-say:
-"I could not find the answer in the document."
-
-Include page citations when possible.
+Rules:
+1. Do not use outside knowledge.
+2. If the answer is not clearly found in the context, say:
+   "I could not find the answer in the document."
+3. Include citations in this format: (page X).
+4. Be concise and factual.
+5. Do not invent page numbers or facts.
 
 Context:
 {context}
 
-Question:
+User question:
 {question}
+
+Answer:
 """
 
     return prompt

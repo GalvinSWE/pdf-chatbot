@@ -14,8 +14,10 @@ def retrieve_relevant_chunks(
 
     sql = text("""
         SELECT
+            id,
             content,
             page_number,
+            chunk_index,
             embedding <-> CAST(:embedding AS vector) AS distance
         FROM document_chunks
         WHERE document_id = :document_id
@@ -34,4 +36,13 @@ def retrieve_relevant_chunks(
 
     rows = result.fetchall()
 
-    return rows
+    return [
+        {
+            "chunk_id": str(row.id),
+            "content": row.content,
+            "page_number": row.page_number,
+            "chunk_index": row.chunk_index,
+            "distance": float(row.distance),
+        }
+        for row in rows
+    ]

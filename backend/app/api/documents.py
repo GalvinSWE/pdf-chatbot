@@ -11,6 +11,7 @@ from app.services.embedding_pipeline_service import (
 
 from sqlalchemy import text
 from app.services.ollama_embedding_service import create_embedding
+from app.services.retrieval_service import retrieve_relevant_chunks
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -132,3 +133,29 @@ async def search_document(
         }
         for row in rows
     ]
+
+@router.get("/{document_id}/debug/retrieval")
+async def debug_retrieval(
+    document_id: str,
+    query: str,
+    db: Session = Depends(get_db),
+):
+    chunks = retrieve_relevant_chunks(
+        document_id=document_id,
+        query=query,
+        db=db,
+        limit=5,
+    )
+
+    return {
+        "query": query,
+        "results": [
+            {
+                "page_number": chunk["page_number"],
+                "chunk_index": chunk["chunk_index"],
+                "distance": chunk["distance"],
+                "content_preview": chunk["content"][:500],
+            }
+            for chunk in chunks
+        ],
+    }
