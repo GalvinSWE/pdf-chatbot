@@ -6,6 +6,7 @@ from app.models.document import Document
 from app.services.openrouter_service import stream_chat_response
 from app.services.prompt_service import build_rag_prompt
 from app.services.retrieval_service import retrieve_relevant_chunks
+from app.services.rag_chat_service import is_context_too_weak
 
 
 def stream_document_answer(
@@ -39,6 +40,20 @@ def stream_document_answer(
             "message": "I could not find the answer in the document.",
         }) + "\n"
         return
+    
+    if is_context_too_weak(chunks):
+        return {
+            "answer": "I could not find the answer in the document.",
+            "sources": [],
+            "debug": {
+                "reason": "weak_context",
+                "best_distance": min(
+                    chunk["distance"]
+                    for chunk in chunks
+                    if chunk.get("strategy") == "semantic"
+                ),
+            }
+        }
 
     sources = [
         {

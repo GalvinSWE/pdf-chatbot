@@ -5,14 +5,18 @@ from app.models.document import DocumentPage
 from app.services.chunking_service import chunk_text
 from app.services.ollama_embedding_service import create_embedding
 
-
 def process_document_embeddings(
     document_id: str,
     db: Session,
 ):
+    db.query(DocumentChunk).filter(
+        DocumentChunk.document_id == document_id
+    ).delete()
+
     pages = (
         db.query(DocumentPage)
         .filter(DocumentPage.document_id == document_id)
+        .order_by(DocumentPage.page_number)
         .all()
     )
 
@@ -33,7 +37,10 @@ def process_document_embeddings(
             )
 
             db.add(document_chunk)
-
             chunk_counter += 1
 
     db.commit()
+
+    return {
+        "chunks_created": chunk_counter,
+    }

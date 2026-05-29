@@ -41,6 +41,20 @@ def ask_document_question(
                 "reason": "no_chunks_retrieved"
             }
         }
+    
+    if is_context_too_weak(chunks):
+        return {
+            "answer": "I could not find the answer in the document.",
+            "sources": [],
+            "debug": {
+                "reason": "weak_context",
+                "best_distance": min(
+                    chunk["distance"]
+                    for chunk in chunks
+                    if chunk.get("strategy") == "semantic"
+                ),
+            }
+    }
 
     prompt = build_rag_prompt(
         question=question,
@@ -76,3 +90,20 @@ def ask_document_question(
             "best_distance": chunks[0]["distance"],
         }
     }
+
+
+def is_context_too_weak(chunks: list[dict]) -> bool:
+    semantic_chunks = [
+        chunk for chunk in chunks
+        if chunk.get("strategy") == "semantic"
+    ]
+
+    if not semantic_chunks:
+        return False
+
+    best_distance = min(
+        chunk["distance"]
+        for chunk in semantic_chunks
+    )
+
+    return best_distance > 25

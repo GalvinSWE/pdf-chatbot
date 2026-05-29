@@ -86,7 +86,7 @@ async def embed_document(
     document_id: str,
     db: Session = Depends(get_db),
 ):
-    process_document_embeddings(
+    result = process_document_embeddings(
         document_id=document_id,
         db=db,
     )
@@ -94,6 +94,7 @@ async def embed_document(
     return {
         "status": "embedded",
         "document_id": document_id,
+        "chunks_created": result["chunks_created"],
     }
 
 @router.get("/{document_id}/search")
