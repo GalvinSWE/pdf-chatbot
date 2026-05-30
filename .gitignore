@@ -30,3 +30,6 @@ ollama/
 # SQLAlchemy
 *.sqlite3
 .env
+
+node_modules/
+.next/
