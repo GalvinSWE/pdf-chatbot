@@ -1,19 +1,19 @@
-"""add jobs table
+"""initial schema
 
-Revision ID: e449b301f0e3
-Revises: 7646d2b8b00b
-Create Date: 2026-05-30 08:20:05.027968
+Revision ID: 281657db98dd
+Revises: 
+Create Date: 2026-05-30 08:52:35.367239
 
 """
 from typing import Sequence, Union
-import pgvector.sqlalchemy
+
 from alembic import op
 import sqlalchemy as sa
-
+import pgvector.sqlalchemy
 
 # revision identifiers, used by Alembic.
-revision: str = 'e449b301f0e3'
-down_revision: Union[str, Sequence[str], None] = '7646d2b8b00b'
+revision: str = '281657db98dd'
+down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
