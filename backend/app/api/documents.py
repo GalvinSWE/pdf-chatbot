@@ -26,8 +26,16 @@ async def upload_document(
             status_code=400,
             detail="Only PDF files are supported",
         )
+    
+    MAX_FILE_SIZE = 50 * 1024 * 1024
 
     file_bytes = await file.read()
+
+    if len(file_bytes) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail="PDF file is too large. Max size is 10MB.",
+        )
 
     pages = extract_pdf_pages(file_bytes)
 
@@ -60,6 +68,53 @@ async def upload_document(
         "filename": document.filename,
         "total_pages": document.total_pages,
         "status": document.status,
+    }
+
+@router.get("")
+async def list_documents(
+    db: Session = Depends(get_db),
+):
+    documents = (
+        db.query(Document)
+        .order_by(Document.created_at.desc())
+        .all()
+    )
+
+    return [
+        {
+            "id": str(document.id),
+            "filename": document.filename,
+            "status": document.status,
+            "total_pages": document.total_pages,
+            "created_at": document.created_at,
+        }
+
+        for document in documents
+    ]
+
+@router.get("/{document_id}")
+async def get_document(
+    document_id: str,
+    db: Session = Depends(get_db),
+):
+    document = (
+        db.query(Document)
+        .filter(Document.id == document_id)
+        .first()
+    )
+
+    if not document:
+        raise HTTPException(
+            status_code=404,
+            detail="Document not found",
+        )
+
+    return {
+        "id": str(document.id),
+        "filename": document.filename,
+        "status": document.status,
+        "total_pages": document.total_pages,
+        "created_at": document.created_at,
     }
 
 @router.get("/{document_id}/pages")
