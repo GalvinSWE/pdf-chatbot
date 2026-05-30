@@ -2,19 +2,24 @@ from fastapi import FastAPI
 from sqlalchemy import text
 
 from app.db.session import engine
+from app.db.base import Base
+
 from app.services.openrouter_service import create_chat_response
 from app.services.ollama_embedding_service import create_embedding
 
-from app.db.base import Base
-from app.models.document import Document, DocumentPage
 from app.api.documents import router as documents_router
-from app.models.chunk import DocumentChunk
 from app.api.chat import router as chat_router
+from app.api.conversations import router as conversations_router
+
+from app.models.conversation import Conversation, ChatMessage
+from app.models.chunk import DocumentChunk
+from app.models.document import Document, DocumentPage
 
 app = FastAPI()
 
 app.include_router(documents_router)
 app.include_router(chat_router)
+app.include_router(conversations_router)
 
 @app.get("/")
 async def root():

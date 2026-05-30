@@ -23,6 +23,7 @@ async def chat(
     result = ask_document_question(
         document_id=request.document_id,
         question=request.message,
+        conversation_id=request.conversation_id,
         db=db,
     )
 
@@ -37,6 +38,7 @@ async def chat_stream(
         stream_document_answer(
             document_id=request.document_id,
             question=request.message,
+            conversation_id=request.conversation_id,
             db=db,
         ),
         media_type="application/x-ndjson",
