@@ -6,7 +6,8 @@ from app.db.session import engine
 from app.db.base import Base
 
 from app.services.openrouter_service import create_chat_response
-from app.services.ollama_embedding_service import create_embedding
+from app.services.embedding_service import create_embedding
+from app.core.settings import settings
 
 from app.api.documents import router as documents_router
 from app.api.chat import router as chat_router
@@ -61,12 +62,12 @@ async def health_chat():
 
 @app.get("/health/embedding")
 async def health_embedding():
+    print(settings.EMBEDDING_PROVIDER)
     embedding = create_embedding("Hello PDF chatbot")
 
     return {
         "status": "ok",
-        "provider": "ollama",
-        "model": "nomic-embed-text",
+        "provider": settings.EMBEDDING_PROVIDER,
         "dimension": len(embedding),
         "preview": embedding[:5],
     }

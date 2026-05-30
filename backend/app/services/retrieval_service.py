@@ -1,7 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.services.ollama_embedding_service import create_embedding
+from app.services.embedding_service import create_embedding
 from app.services.question_classifier_service import is_overview_question
 
 def retrieve_semantic_chunks(

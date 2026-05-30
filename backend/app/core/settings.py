@@ -5,6 +5,12 @@ class Settings(BaseSettings):
     OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
     OPENROUTER_MODEL: str = "openrouter/free"
 
+    EMBEDDING_PROVIDER: str = "jina"
+    JINA_API_KEY: str | None = None
+    JINA_BASE_URL: str = "https://api.jina.ai/v1/embeddings"
+    JINA_EMBEDDING_MODEL: str = "jina-embeddings-v3"
+    JINA_EMBEDDING_DIMENSION: int = 1024
+
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_EMBEDDING_MODEL: str = "nomic-embed-text"
 

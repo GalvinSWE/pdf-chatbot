@@ -1,18 +1,18 @@
 """initial schema
 
-Revision ID: 281657db98dd
+Revision ID: 5883cace321d
 Revises: 
-Create Date: 2026-05-30 08:52:35.367239
+Create Date: 2026-05-30 13:13:46.582937
 
 """
 from typing import Sequence, Union
-
+import pgvector.sqlalchemy
 from alembic import op
 import sqlalchemy as sa
-import pgvector.sqlalchemy
+
 
 # revision identifiers, used by Alembic.
-revision: str = '281657db98dd'
+revision: str = '5883cace321d'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -65,7 +65,7 @@ def upgrade() -> None:
     sa.Column('page_number', sa.Integer(), nullable=False),
     sa.Column('chunk_index', sa.Integer(), nullable=False),
     sa.Column('content', sa.Text(), nullable=False),
-    sa.Column('embedding', pgvector.sqlalchemy.vector.VECTOR(dim=768), nullable=True),
+    sa.Column('embedding', pgvector.sqlalchemy.vector.VECTOR(dim=1024), nullable=True),
     sa.ForeignKeyConstraint(['document_id'], ['documents.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

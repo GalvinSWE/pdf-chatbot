@@ -3,7 +3,11 @@ from sqlalchemy.orm import Session
 from app.models.chunk import DocumentChunk
 from app.models.document import DocumentPage
 from app.services.chunking_service import chunk_text
-from app.services.ollama_embedding_service import create_embedding
+from app.services.embedding_service import create_embeddings
+
+
+BATCH_SIZE = 10
+
 
 def process_document_embeddings(
     document_id: str,
@@ -25,21 +29,49 @@ def process_document_embeddings(
     for page in pages:
         chunks = chunk_text(page.content)
 
-        for chunk in chunks:
-            embedding = create_embedding(chunk)
+        if not chunks:
+            print(
+                f"Skipping empty page {page.page_number}"
+            )
+            continue
 
-            document_chunk = DocumentChunk(
-                document_id=document_id,
-                page_number=page.page_number,
-                chunk_index=chunk_counter,
-                content=chunk,
-                embedding=embedding,
+        print(
+            f"Embedding page {page.page_number} "
+            f"({len(chunks)} chunks)"
+        )
+
+        for start in range(0, len(chunks), BATCH_SIZE):
+            batch = chunks[start:start + BATCH_SIZE]
+
+            if not batch:
+                continue
+
+            print(
+                f"Embedding page {page.page_number}, "
+                f"batch {start // BATCH_SIZE + 1}, "
+                f"{len(batch)} chunks"
             )
 
-            db.add(document_chunk)
-            chunk_counter += 1
+            embeddings = create_embeddings(batch)
 
-    db.commit()
+            for chunk, embedding in zip(batch, embeddings):
+                document_chunk = DocumentChunk(
+                    document_id=document_id,
+                    page_number=page.page_number,
+                    chunk_index=chunk_counter,
+                    content=chunk,
+                    embedding=embedding,
+                )
+
+                db.add(document_chunk)
+                chunk_counter += 1
+
+            db.commit()
+
+    print(
+        f"Finished embedding "
+        f"{chunk_counter} chunks"
+    )
 
     return {
         "chunks_created": chunk_counter,
