@@ -13,4 +13,4 @@ requests
 python-multipart
 pypdf
 pgvector
-requirements.txt
+alembic
