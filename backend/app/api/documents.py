@@ -1,17 +1,18 @@
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from app.db.dependencies import get_db
 from app.models.document import Document, DocumentPage
-from app.services.pdf_service import extract_pdf_pages
 
+from app.services.pdf_service import extract_pdf_pages
+from app.services.ollama_embedding_service import create_embedding
+from app.services.retrieval_service import retrieve_relevant_chunks
+from app.services.job_service import create_job
 from app.services.embedding_pipeline_service import (
     process_document_embeddings,
 )
 
-from sqlalchemy import text
-from app.services.ollama_embedding_service import create_embedding
-from app.services.retrieval_service import retrieve_relevant_chunks
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -159,4 +160,21 @@ async def debug_retrieval(
             }
             for chunk in chunks
         ],
+    }
+
+@router.post("/{document_id}/embed-jobs")
+async def create_embedding_job(
+    document_id: str,
+    db: Session = Depends(get_db),
+):
+    job = create_job(
+        job_type="document_embedding",
+        document_id=document_id,
+        db=db,
+    )
+
+    return {
+        "job_id": str(job.id),
+        "document_id": document_id,
+        "status": job.status,
     }
