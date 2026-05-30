@@ -1,85 +1,60 @@
-Dưới đây là README mà mình nghĩ đủ mạnh để đưa vào CV/GitHub khi apply AI Engineer Junior.
+Đây là phiên bản README mà mình sẽ dùng nếu là recruiter nhìn vào GitHub của một Junior AI Engineer.
 
 PDF Chatbot RAG
 
-An end-to-end AI-powered PDF Chatbot built with Retrieval-Augmented Generation (RAG).
+An end-to-end Retrieval-Augmented Generation (RAG) application that allows users to upload PDF documents and chat with them using AI.
 
-Users can upload PDF documents, automatically generate embeddings, store vectors in PostgreSQL + pgvector, and ask questions about the document with source citations and streaming responses.
+The system extracts text from PDFs, generates embeddings locally with Ollama, stores vectors in PostgreSQL + pgvector, retrieves relevant context through semantic search, and generates grounded answers using an LLM via OpenRouter.
 
 ⸻
 
+Demo
+
 Features
 
-Document Processing
-
-* Upload PDF files
-* Extract text from PDFs
-* Page-level storage
-* Chunking pipeline
-* Embedding generation using Ollama
-
-Retrieval-Augmented Generation (RAG)
-
-* Semantic search
-* Vector similarity retrieval
-* Context injection
-* Source citations
-* Hallucination reduction
-
-Chat Experience
-
-* Streaming responses
-* Conversation history
-* Follow-up questions
-* Question rewriting
-* Multi-turn conversations
-
-Evaluation
-
-* Groundedness evaluation
-* Retrieval quality evaluation
-* LLM answer evaluation
-
-Infrastructure
-
-* PostgreSQL
-* pgvector
-* Dockerized deployment
-* Background workers
-* Async job processing
+* PDF Upload
+* PDF Text Extraction
+* Semantic Search
+* RAG Pipeline
+* Streaming Responses
+* Source Citations
+* Conversation History
+* Follow-up Questions
+* Async Embedding Jobs
+* Evaluation Dashboard
+* Dockerized Deployment
 
 ⸻
 
 Architecture
 
-                     +----------------+
-                     |    Frontend    |
-                     |    Next.js     |
-                     +-------+--------+
+                    +------------------+
+                    |     Frontend     |
+                    |     Next.js      |
+                    +--------+---------+
                              |
                              v
-                     +-------+--------+
-                     |    FastAPI     |
-                     |    Backend     |
-                     +-------+--------+
+                    +--------+---------+
+                    |      FastAPI     |
+                    |      Backend     |
+                    +--------+---------+
                              |
-          +------------------+------------------+
-          |                                     |
-          v                                     v
-+---------+----------+              +-----------+----------+
-| PostgreSQL         |              | OpenRouter           |
-| pgvector           |              | LLM Provider         |
-+---------+----------+              +-----------+----------+
-          |
-          v
-+---------+----------+
-| Ollama             |
-| Embedding Model    |
-+--------------------+
+           +-----------------+------------------+
+           |                                    |
+           v                                    v
++----------+-----------+           +------------+-----------+
+| PostgreSQL + pgvector|           |   OpenRouter LLM      |
++----------+-----------+           +------------+-----------+
+           |
+           v
++----------+-----------+
+|      Ollama          |
+| nomic-embed-text     |
++----------------------+
 
 ⸻
 
-RAG Pipeline
+RAG Flow
 
 PDF
  ↓
@@ -87,17 +62,17 @@ Text Extraction
  ↓
 Chunking
  ↓
-Embeddings
+Embedding Generation
  ↓
-pgvector
+pgvector Storage
  ↓
 Semantic Retrieval
  ↓
 Prompt Construction
  ↓
-OpenRouter LLM
+LLM Generation
  ↓
-Streaming Answer
+Grounded Answer
 
 ⸻
 
@@ -116,7 +91,7 @@ AI
 * Ollama
 * nomic-embed-text
 * OpenRouter
-* Llama / Qwen / DeepSeek
+* DeepSeek / Qwen / Llama
 
 Frontend
 
@@ -124,7 +99,7 @@ Frontend
 * React
 * TailwindCSS
 
-DevOps
+Infrastructure
 
 * Docker
 * Docker Compose
@@ -134,7 +109,6 @@ DevOps
 Project Structure
 
 backend/
-│
 ├── alembic/
 ├── app/
 │   ├── api/
@@ -144,101 +118,25 @@ backend/
 │   ├── services/
 │   └── worker.py
 │
-├── requirements.txt
-└── Dockerfile
+└── requirements.txt
 frontend/
-│
 ├── src/
-├── public/
-├── package.json
-└── Dockerfile
+└── package.json
 docker-compose.yml
 README.md
 
 ⸻
 
-Database Schema
+Quick Start
 
-documents
-
-Stores uploaded PDFs.
-
-id
-filename
-status
-total_pages
-created_at
-
-document_pages
-
-Stores extracted page content.
-
-id
-document_id
-page_number
-content
-
-document_chunks
-
-Stores chunks and embeddings.
-
-id
-document_id
-page_number
-chunk_index
-content
-embedding
-
-conversations
-
-Stores chat sessions.
-
-id
-document_id
-title
-created_at
-
-chat_messages
-
-Stores conversation history.
-
-id
-conversation_id
-role
-content
-created_at
-
-jobs
-
-Stores background embedding jobs.
-
-id
-type
-status
-document_id
-error
-created_at
-started_at
-completed_at
-
-⸻
-
-Setup
-
-Clone
+Clone Repository
 
 git clone https://github.com/YOUR_USERNAME/pdf-chatbot.git
 cd pdf-chatbot
 
-⸻
+Configure Environment
 
-Environment Variables
-
-Create:
-
-cp .env.example .env
-
-Example:
+Create .env
 
 DATABASE_URL=postgresql://postgres:postgres@db:5432/pdfchatbot
 OPENROUTER_API_KEY=
@@ -247,19 +145,13 @@ OPENROUTER_MODEL=deepseek/deepseek-chat-v3-0324:free
 OLLAMA_BASE_URL=http://ollama:11434
 OLLAMA_EMBEDDING_MODEL=nomic-embed-text
 
-⸻
-
-Start Application
+Start Services
 
 docker compose up --build
-
-⸻
 
 Run Database Migration
 
 docker compose exec backend python -m alembic upgrade head
-
-⸻
 
 Pull Embedding Model
 
@@ -268,178 +160,81 @@ ollama pull nomic-embed-text
 
 ⸻
 
-Verify Ollama
-
-curl http://localhost:11434/api/tags
-
-⸻
-
-API Endpoints
-
-Health
-
-GET /health
-
-⸻
+API Overview
 
 Documents
 
-Upload PDF
-
 POST /documents/upload
+GET  /documents
+GET  /documents/{id}
 
-List documents
+Embedding Jobs
 
-GET /documents
-
-Get document
-
-GET /documents/{document_id}
-
-⸻
-
-Jobs
-
-Create embedding job
-
-POST /documents/{document_id}/embed-jobs
-
-Get job status
-
-GET /jobs/{job_id}
-
-⸻
-
-Chat
+POST /documents/{id}/embed-jobs
+GET  /jobs/{id}
 
 Chat
 
 POST /chat
-
-Streaming chat
-
 POST /chat/stream
-
-⸻
 
 Conversations
 
-List conversations
-
 GET /conversations
-
-Messages
-
-GET /conversations/{conversation_id}/messages
-
-⸻
+GET /conversations/{id}/messages
 
 Evaluation
 
-Run evaluation
-
 POST /evaluation/run
-
-List results
-
-GET /evaluation/results
+GET  /evaluation/results
 
 ⸻
 
 Example Workflow
 
-1 Upload PDF
+1. Upload PDF
+
+User uploads:
 
 The Design of Everyday Things.pdf
 
-↓
-
-2 Create Embedding Job
+2. Generate Embeddings
 
 pending
-
-↓
-
+ ↓
 running
-
-↓
-
+ ↓
 completed
 
-↓
-
-3 Ask Questions
+3. Ask Questions
 
 What is this book about?
 Explain affordances.
-What does Don Norman mean by signifiers?
+What are signifiers?
 
-⸻
+4. Receive Grounded Answers
 
-Example RAG Flow
-
-User Question
-
-What is affordance?
-
-↓
-
-Embedding Query
-
-↓
-
-Vector Search
-
-↓
-
-Top 5 Relevant Chunks
-
-↓
-
-Prompt Construction
-
-↓
-
-LLM Answer
-
-↓
-
-Source Citations
+Answer generated from retrieved document chunks
+with page citations.
 
 ⸻
 
 What I Learned
 
-AI Engineering
+This project was built as a hands-on journey to transition from Web Development to AI Engineering.
+
+Key concepts learned:
 
 * Retrieval-Augmented Generation (RAG)
-* Embeddings
-* Vector Databases
-* Semantic Search
+* Embeddings and Vector Search
+* pgvector and Semantic Retrieval
 * Prompt Engineering
 * Hallucination Reduction
-* Evaluation Techniques
-
-Backend Engineering
-
-* FastAPI
-* SQLAlchemy
-* Alembic
-* Background Workers
-* Streaming APIs
-
-Data Engineering
-
-* PDF Parsing
-* Chunking Strategies
-* Embedding Pipelines
-
-Infrastructure
-
-* Docker
-* PostgreSQL
-* pgvector
-* Local AI Models with Ollama
+* Context Grounding
+* Streaming LLM Responses
+* Async Job Processing
+* AI Evaluation
+* Dockerized AI Applications
 
 ⸻
 
@@ -447,13 +242,11 @@ Future Improvements
 
 * Hybrid Search (Keyword + Vector)
 * Reranking Models
-* Multi-document Chat
 * OCR Support
-* Image Understanding
+* Multi-document Chat
 * Agentic RAG
-* LangGraph Workflow
-* Authentication
-* Team Workspaces
+* LangGraph Workflows
+* Authentication & User Accounts
 
 ⸻
 
@@ -467,18 +260,18 @@ docs/images/sources.png
 
 ⸻
 
-License
-
-MIT License
-
-⸻
-
 Author
 
 Galvin Nguyen
 
-Aspiring AI Engineer
+Web Developer → AI Engineer
 
-Built as a personal project to learn production-grade RAG systems.
+Building AI applications to learn production-grade RAG systems.
 
-Sau README này, project của bạn đã ở mức khá ổn cho portfolio. Bước tiếp theo hợp lý nhất không phải thêm tính năng nữa mà là làm Phase 15 — Hybrid Search + Reranking, vì đó là thứ thường được hỏi trong phỏng vấn AI Engineer khi bạn đã có một RAG chatbot hoàn chỉnh.
+Một điểm quan trọng: khi project hoàn thành, hãy thay dòng:
+
+Web Developer → AI Engineer
+
+bằng:
+
+AI Engineer | FastAPI | RAG | LLM Applications
