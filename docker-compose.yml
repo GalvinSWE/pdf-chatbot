@@ -11,13 +11,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  ollama:
-    image: ollama/ollama
-    container_name: pdf-chatbot-ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
+  # ollama:
+  #   image: ollama/ollama
+  #   container_name: pdf-chatbot-ollama
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
 
   backend:
     build:
@@ -29,18 +29,18 @@ services:
       - "8000:8000"
     depends_on:
       - db
-      - ollama
+      # - ollama
 
-  worker:
-    build:
-      context: ./backend
-    container_name: pdf-chatbot-worker
-    env_file:
-      - .env
-    command: ["python", "-m", "app.worker"]
-    depends_on:
-      - db
-      - ollama
+  # worker:
+  #   build:
+  #     context: ./backend
+  #   container_name: pdf-chatbot-worker
+  #   env_file:
+  #     - .env
+  #   command: ["python", "-m", "app.worker"]
+  #   depends_on:
+  #     - db
+  #     - ollama
 
   frontend:
     build:
@@ -55,4 +55,4 @@ services:
 
 volumes:
   postgres_data:
-  ollama_data:
+  # ollama_data:

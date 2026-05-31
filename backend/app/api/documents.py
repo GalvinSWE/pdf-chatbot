@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, BackgroundTasks
+
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 
@@ -9,6 +10,7 @@ from app.services.pdf_service import extract_pdf_pages
 from app.services.ollama_embedding_service import create_embedding
 from app.services.retrieval_service import retrieve_relevant_chunks
 from app.services.job_service import create_job
+from app.services.background_embedding_service import run_embedding_job
 from app.services.embedding_pipeline_service import (
     process_document_embeddings,
 )
@@ -217,9 +219,27 @@ async def debug_retrieval(
         ],
     }
 
+# @router.post("/{document_id}/embed-jobs")
+# async def create_embedding_job(
+#     document_id: str,
+#     db: Session = Depends(get_db),
+# ):
+#     job = create_job(
+#         job_type="document_embedding",
+#         document_id=document_id,
+#         db=db,
+#     )
+
+#     return {
+#         "job_id": str(job.id),
+#         "document_id": document_id,
+#         "status": job.status,
+#     }
+
 @router.post("/{document_id}/embed-jobs")
 async def create_embedding_job(
     document_id: str,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
     job = create_job(
@@ -227,6 +247,12 @@ async def create_embedding_job(
         document_id=document_id,
         db=db,
     )
+
+    if job.status == "pending":
+        background_tasks.add_task(
+            run_embedding_job,
+            str(job.id),
+        )
 
     return {
         "job_id": str(job.id),
