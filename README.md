@@ -1,5 +1,3 @@
-Đây là phiên bản README mà mình sẽ dùng nếu là recruiter nhìn vào GitHub của một Junior AI Engineer.
-
 PDF Chatbot RAG
 
 An end-to-end Retrieval-Augmented Generation (RAG) application that allows users to upload PDF documents and chat with them using AI.
